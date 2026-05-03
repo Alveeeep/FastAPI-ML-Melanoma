@@ -1,0 +1,2 @@
+"""Melanoma CDS microservice package."""
+

@@ -1,0 +1,24 @@
+services:
+  melanoma-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: melanoma-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      APP_NAME: melanoma-cds-service
+      APP_VERSION: "1.0.0"
+      MODEL_NAME: resnet50v2
+      MODEL_WEIGHTS_PATH: /app/models/resnet50v2_c5_baseline_best.pt
+      IMAGE_SIZE: "224"
+      DEVICE: cpu
+      TTA_RUNS: "4"
+      ENABLE_AUTH: "false"
+      SCREENING_THRESHOLD: "0.09357384592294693"
+      HIGH_SPECIFICITY_THRESHOLD: "0.2621931731700897"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models:ro
