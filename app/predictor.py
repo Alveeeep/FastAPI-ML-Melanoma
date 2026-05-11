@@ -26,6 +26,8 @@ class PredictionResult:
     confidence: float
     uncertainty: float
     threshold_used: float
+    risk_band: str
+    needs_review: bool
 
 
 class MelanomaPredictor:
@@ -45,6 +47,7 @@ class MelanomaPredictor:
         self.class_names = CLASS_NAMES.copy()
         self.melanoma_index = 1
         self.decision_threshold = 0.5
+        self.review_margin = max(0.0, float(settings.review_margin))
 
     def load(self) -> None:
         model = create_model(self.settings.model_name, num_classes=2)
@@ -115,6 +118,14 @@ class MelanomaPredictor:
         threshold = self.decision_threshold if threshold_override is None else float(threshold_override)
         class_idx = self.melanoma_index if melanoma_probability >= threshold else 1 - self.melanoma_index
         confidence = melanoma_probability if class_idx == self.melanoma_index else (1.0 - melanoma_probability)
+        delta = melanoma_probability - threshold
+        if delta >= self.review_margin:
+            risk_band = "high"
+        elif delta <= -self.review_margin:
+            risk_band = "low"
+        else:
+            risk_band = "borderline"
+        needs_review = risk_band == "borderline"
 
         return PredictionResult(
             class_label=self.class_names[class_idx],
@@ -122,6 +133,8 @@ class MelanomaPredictor:
             confidence=confidence,
             uncertainty=uncertainty,
             threshold_used=threshold,
+            risk_band=risk_band,
+            needs_review=needs_review,
         )
 
     def _find_last_conv(self, model: nn.Module) -> nn.Module:

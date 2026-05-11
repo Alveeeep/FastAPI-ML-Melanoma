@@ -203,7 +203,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 Threshold modes:
 - `checkpoint`: threshold saved in model checkpoint.
-- `screening`: uses `SCREENING_THRESHOLD` env var (higher sensitivity).
+- `screening`: uses the configurable `SCREENING_THRESHOLD` env var.
 - `high_specificity`: uses `HIGH_SPECIFICITY_THRESHOLD` env var.
 
 ## 6. Quick cURL Examples
@@ -234,22 +234,44 @@ Check:
 curl http://127.0.0.1:8000/health
 ```
 
+Check recent prediction logs in PostgreSQL:
+
+```bash
+docker compose exec postgres psql -U melanoma -d melanoma -c "SELECT id, created_at, mode, class_label, melanoma_probability, processing_ms FROM prediction_requests ORDER BY id DESC LIMIT 5;"
+```
+
 Stop:
 
 ```bash
 docker compose down
 ```
 
-## 9. What to Add Next (for full diploma scope)
+## 9. Telegram Bot (aiogram)
+
+The bot accepts image messages and forwards them to your API `/v1/predict`.
+
+Required env vars:
+- `TELEGRAM_BOT_TOKEN`
+- `API_BASE_URL` (example: `http://127.0.0.1:8000`)
+- `API_MODE` (`checkpoint` | `screening` | `high_specificity`)
+- if API auth is enabled: `ENABLE_API_AUTH=true` and `API_TOKEN=<token>`
+
+Run bot:
+
+```bash
+python -m bot.main
+```
+
+## 10. What to Add Next (for full diploma scope)
 
 - probability calibration (temperature scaling / isotonic)
 - threshold tuning for target sensitivity/specificity
-- persistent storage of image history (PostgreSQL + object storage)
+- optional medical-case history and image object storage
 - API gateway + JWT/OAuth2
 - MLflow experiment tracking
 - Docker Compose with monitoring/logging stack
 
-## 10. Final External Validation (No Retraining)
+## 11. Final External Validation (No Retraining)
 
 1) Download and prepare an external dataset (example: ISIC 2019):
 

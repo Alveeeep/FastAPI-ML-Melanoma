@@ -7,6 +7,7 @@ class HealthResponse(BaseModel):
     status: str = "ok"
     model_loaded: bool
     model_name: str
+    database_enabled: bool = False
 
 
 class ModelInfoResponse(BaseModel):
@@ -19,6 +20,7 @@ class ModelInfoResponse(BaseModel):
     high_specificity_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
     weights_path: str
     loaded: bool
+    database_enabled: bool = False
 
 
 class PredictionResponse(BaseModel):
@@ -27,6 +29,8 @@ class PredictionResponse(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     uncertainty: float = Field(ge=0.0, le=1.0)
     threshold_used: float = Field(ge=0.0, le=1.0)
+    risk_band: str
+    needs_review: bool
 
 
 class PredictionWithHeatmapResponse(PredictionResponse):

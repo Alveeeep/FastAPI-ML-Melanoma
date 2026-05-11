@@ -17,6 +17,7 @@ COPY pyproject.toml uv.lock /app/
 RUN uv sync --frozen --no-dev
 
 COPY app /app/app
+COPY bot /app/bot
 COPY training /app/training
 
 EXPOSE 8000
