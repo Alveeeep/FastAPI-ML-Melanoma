@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: melanoma
       POSTGRES_PASSWORD: melanoma
     ports:
-      - "5432:5432"
+      - "5489:5489"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
