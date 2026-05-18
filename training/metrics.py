@@ -93,3 +93,51 @@ def optimize_threshold(
     result = dict(best)
     result["target_specificity"] = float(target_specificity)
     return result
+
+
+def optimize_threshold_for_sensitivity(
+    y_true: np.ndarray,
+    y_prob_pos: np.ndarray,
+    target_sensitivity: float = 0.80,
+) -> dict[str, float]:
+    y_true = np.asarray(y_true, dtype=np.int64)
+    y_prob_pos = np.asarray(y_prob_pos, dtype=np.float32)
+    if y_true.size == 0:
+        return {"threshold": 0.5}
+
+    thresholds = np.unique(y_prob_pos)
+    if thresholds.size == 0:
+        return {"threshold": 0.5}
+
+    candidates: list[dict[str, float]] = []
+    for threshold in thresholds:
+        metrics = classification_metrics(y_true, y_prob_pos, threshold=float(threshold))
+        candidates.append(metrics)
+
+    valid = [m for m in candidates if m.get("sensitivity", 0.0) >= target_sensitivity]
+    if valid:
+        valid.sort(
+            key=lambda m: (
+                m.get("specificity", 0.0),
+                m.get("sensitivity", 0.0),
+                -abs(m.get("threshold", 0.5) - 0.5),
+            ),
+            reverse=True,
+        )
+        best = valid[0]
+    else:
+        # If the target sensitivity is unreachable, keep the most sensitive threshold.
+        candidates.sort(
+            key=lambda m: (
+                m.get("sensitivity", 0.0),
+                m.get("specificity", 0.0),
+                -abs(m.get("threshold", 0.5) - 0.5),
+            ),
+            reverse=True,
+        )
+        best = candidates[0]
+
+    result = dict(best)
+    result["target_sensitivity"] = float(target_sensitivity)
+    result["target_sensitivity_reached"] = float(result.get("sensitivity", 0.0) >= target_sensitivity)
+    return result

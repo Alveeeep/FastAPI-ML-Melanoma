@@ -54,6 +54,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--target-specificity", type=float, default=0.85)
     parser.add_argument("--output-dir", default="outputs/final_validation")
+    parser.add_argument("--output-stem", default=None, help="Output file stem. Defaults to '<model>_external_val'.")
+    parser.add_argument("--plot-suffix", default="", help="Suffix for generated plot and metrics files.")
     return parser.parse_args()
 
 
@@ -111,11 +113,12 @@ def main() -> None:
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"{model_name}_external_val"
+    stem = str(args.output_stem or f"{model_name}_external_val")
+    file_stem = f"{stem}{args.plot_suffix}"
 
-    cm_path = output_dir / f"{stem}_confusion_matrix_heatmap.png"
-    roc_path = output_dir / f"{stem}_roc_curve.png"
-    probs_path = output_dir / f"{stem}_probability_histogram.png"
+    cm_path = output_dir / f"{file_stem}_confusion_matrix_heatmap.png"
+    roc_path = output_dir / f"{file_stem}_roc_curve.png"
+    probs_path = output_dir / f"{file_stem}_probability_histogram.png"
     plot_confusion_matrix_heatmap(y_true, y_prob, cm_path, threshold=decision_threshold)
     plot_roc(y_true, y_prob, roc_path)
     plot_probability_histogram(y_true, y_prob, probs_path)
@@ -138,7 +141,7 @@ def main() -> None:
         },
     }
 
-    metrics_path = output_dir / f"{stem}.metrics.json"
+    metrics_path = output_dir / f"{file_stem}.metrics.json"
     metrics_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"Saved final-validation metrics: {metrics_path}")
     print(f"Saved confusion matrix heatmap: {cm_path}")
@@ -148,4 +151,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
