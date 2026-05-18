@@ -1,0 +1,29 @@
+[project]
+name = "diplom-server"
+version = "0.1.0"
+description = "Runtime dependencies for melanoma image-processing API and Telegram bot."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiogram==3.21.0",
+    "asyncpg==0.30.0",
+    "fastapi==0.116.1",
+    "httpx==0.28.1",
+    "numpy==2.2.4",
+    "pillow==11.1.0",
+    "python-multipart==0.0.20",
+    "sqlalchemy==2.0.41",
+    "timm==1.0.15",
+    "torch==2.7.0+cpu",
+    "torchvision==0.22.0+cpu",
+    "uvicorn[standard]==0.34.0",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }

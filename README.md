@@ -224,6 +224,8 @@ Create `.env` from `.env.example`, set `TELEGRAM_BOT_TOKEN` if the bot is needed
 
 In this deployment variant, service settings are stored in `.env`. `docker-compose.yml` only connects `.env` to the containers and describes ports, volumes, network and healthchecks.
 
+Server builds use `Dockerfile.server` and `pyproject.server.toml`. This runtime dependency set excludes training-only packages such as Kaggle CLI, matplotlib and scikit-learn. The full `pyproject.toml` remains for local dataset preparation, training, comparison and plotting.
+
 Docker Compose uses an internal network. Inside that network services must address each other by service name, not by `127.0.0.1`:
 
 - API container to PostgreSQL: `postgres:5432`

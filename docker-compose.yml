@@ -20,7 +20,7 @@ services:
   melanoma-api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.server
     container_name: melanoma-api
     restart: unless-stopped
     depends_on:
@@ -44,7 +44,7 @@ services:
   melanoma-bot:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.server
     container_name: melanoma-bot
     profiles:
       - bot
