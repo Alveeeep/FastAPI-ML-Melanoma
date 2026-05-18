@@ -220,12 +220,30 @@ curl -X POST "http://127.0.0.1:8000/v1/predict-with-heatmap?mode=high_specificit
 
 ## 8. Docker / Docker Compose (uv)
 
-Create `.env` from `.env.example`, set `MODEL_WEIGHTS_PATH` and thresholds.
+Create `.env` from `.env.example`, set `TELEGRAM_BOT_TOKEN` if the bot is needed, and put the trained model file into `models/resnet50v2_c5_baseline_best.pt`.
+
+In this deployment variant, service settings are stored in `.env`. `docker-compose.yml` only connects `.env` to the containers and describes ports, volumes, network and healthchecks.
+
+Docker Compose uses an internal network. Inside that network services must address each other by service name, not by `127.0.0.1`:
+
+- API container to PostgreSQL: `postgres:5432`
+- bot container to API: `http://melanoma-api:8000`
+
+For requests from the host machine, browser, or remote pgAdmin, use the published host port:
+
+- API from host: `http://127.0.0.1:8000`
+- PostgreSQL from host: `<server-ip>:5489`
 
 Build and run:
 
 ```bash
 docker compose up --build -d
+```
+
+Run with Telegram bot:
+
+```bash
+docker compose --profile bot up --build -d
 ```
 
 Check:
@@ -252,9 +270,11 @@ The bot accepts image messages and forwards them to your API `/v1/predict`.
 
 Required env vars:
 - `TELEGRAM_BOT_TOKEN`
-- `API_BASE_URL` (example: `http://127.0.0.1:8000`)
+- `API_BASE_URL`
 - `API_MODE` (`checkpoint` | `screening` | `high_specificity`)
 - if API auth is enabled: `ENABLE_API_AUTH=true` and `API_TOKEN=<token>`
+
+Use `API_BASE_URL=http://melanoma-api:8000` when the bot runs inside Docker Compose. Use `API_BASE_URL=http://127.0.0.1:8000` only if the bot is started directly on the host outside Docker.
 
 Run bot:
 
